@@ -21,6 +21,8 @@ func main() {
 }
 
 func run() int {
+	redisstore.ConfigureLogging()
+
 	cfg, err := config.Load()
 	if err != nil {
 		writeJSONLog(map[string]any{

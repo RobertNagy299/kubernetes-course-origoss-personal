@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"os"
 	"sync"
@@ -37,7 +38,6 @@ type requestLog struct {
 	Path     string `json:"path"`
 	Status   int    `json:"status"`
 	Duration int64  `json:"duration_ms"`
-	Error    string `json:"error,omitempty"`
 }
 
 type requestLogger struct {
@@ -46,8 +46,12 @@ type requestLogger struct {
 }
 
 func NewLoggingMiddleware(next http.Handler) http.Handler {
+	return newLoggingMiddleware(next, os.Stdout)
+}
+
+func newLoggingMiddleware(next http.Handler, output io.Writer) http.Handler {
 	logger := &requestLogger{
-		encoder: json.NewEncoder(os.Stdout),
+		encoder: json.NewEncoder(output),
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

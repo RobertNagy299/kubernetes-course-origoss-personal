@@ -3,14 +3,12 @@ package web
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
 )
 
 // VisitCounter describes the Redis operation the HTTP layer needs.
-// The Redis implementation will satisfy this interface.
 type VisitCounter interface {
 	Increment(ctx context.Context) (int64, error)
 }
@@ -47,8 +45,11 @@ func (h *Handler) Routes() http.Handler {
 func (h *Handler) home(w http.ResponseWriter, r *http.Request) {
 	visits, err := h.counter.Increment(r.Context())
 	if err != nil {
-		log.Printf("increment visit counter: %v", err)
-		http.Error(w, "visit counter unavailable", http.StatusServiceUnavailable)
+		http.Error(
+			w,
+			"visit counter unavailable",
+			http.StatusServiceUnavailable,
+		)
 		return
 	}
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"sync"
 	"time"
@@ -14,6 +15,12 @@ import (
 type jsonLogger struct {
 	mu      sync.Mutex
 	encoder *json.Encoder
+}
+
+func newJSONLogger(w io.Writer) *jsonLogger {
+	return &jsonLogger{
+		encoder: json.NewEncoder(w),
+	}
 }
 
 func (l *jsonLogger) Printf(
@@ -39,7 +46,5 @@ func (l *jsonLogger) Printf(
 // ConfigureLogging redirects go-redis's internal logs to JSON on stdout.
 // Call this before creating or using a Redis client.
 func ConfigureLogging() {
-	redis.SetLogger(&jsonLogger{
-		encoder: json.NewEncoder(os.Stdout),
-	})
+	redis.SetLogger(newJSONLogger(os.Stdout))
 }
